@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crime Intelligence Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>AI Crime Pattern Analysis & Patrol Optimization</h1>
+
+<h2>Predict Patrol Requirement</h2>
+
+<form id="predictForm">
+    Latitude: <input type="text" name="latitude"><br>
+    Longitude: <input type="text" name="longitude"><br>
+    Hour (0-23): <input type="number" name="hour"><br>
+    Day: <input type="number" name="day"><br>
+    Month: <input type="number" name="month"><br>
+    <button type="submit">Predict</button>
+</form>
+
+<h3 id="result"></h3>
+
+<hr>
+
+<a href="/generate_heatmap">View Density Heatmap</a><br>
+<a href="/patrol_routes">View Patrol Route Recommendations</a>
+
+<hr>
+
+<h2>Crime by Hour</h2>
+<canvas id="hourChart"></canvas>
+
+<hr>
+
+<h2>Area Risk Ranking</h2>
+<ul id="areaRanking"></ul>
+
+<script>
+document.getElementById("predictForm").onsubmit = async function(e){
+    e.preventDefault();
+    let formData = new FormData(this);
+
+    let response = await fetch("/predict_patrol", {
+        method: "POST",
+        body: formData
+    });
+
+    let data = await response.json();
+    document.getElementById("result").innerText = data.result;
+};
+
+fetch("/crime_by_hour")
+.then(response => response.json())
+.then(data => {
+
+    const labels = Object.keys(data);
+    const values = Object.values(data);
+
+    new Chart(document.getElementById("hourChart"), {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Crimes per Hour",
+                data: values
+            }]
+        }
+    });
+});
+
+fetch("/area_ranking")
+.then(response => response.json())
+.then(data => {
+
+    let list = document.getElementById("areaRanking");
+    list.innerHTML = "";
+
+    for (let area in data) {
+        let li = document.createElement("li");
+        li.innerText = area + " → Risk Score: " + data[area].toFixed(2);
+        list.appendChild(li);
+    }
+});
+</script>
+
+</body>
+</html>

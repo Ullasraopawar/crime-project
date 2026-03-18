@@ -1,0 +1,24 @@
+body {
+    font-family: Arial;
+    text-align: center;
+    background-color: #f2f2f2;
+}
+
+form {
+    background: white;
+    padding: 20px;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+h1 {
+    color: darkred;
+}
+.chart-wrapper {
+    width: 600px;
+    margin: auto;
+}
+
+.chart-wrapper canvas {
+    height: 300px !important;
+}
