@@ -5,18 +5,36 @@
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
-<h1>AI Crime Pattern Analysis & Patrol Optimization</h1>
+<h1>AI Crime Pattern Analysis & Patrol Optimization 🚔</h1>
+
+<!-- ================= AREA SELECTION ================= -->
+
+<h2>Select Area (Auto Fill Coordinates)</h2>
+
+<select id="areaSelect">
+    <option value="">-- Select Area --</option>
+    <option value="12.9719,77.6412">Indiranagar</option>
+    <option value="12.9698,77.7500">Whitefield</option>
+    <option value="12.9352,77.6245">Koramangala</option>
+    <option value="12.8456,77.6603">Electronic City</option>
+    <option value="12.9763,77.5713">Majestic</option>
+</select>
+
+<br><br>
+
+<!-- ================= PREDICTION FORM ================= -->
 
 <h2>Predict Patrol Requirement</h2>
 
 <form id="predictForm">
-    Latitude: <input type="text" name="latitude"><br>
-    Longitude: <input type="text" name="longitude"><br>
-    Hour (0-23): <input type="number" name="hour"><br>
-    Day: <input type="number" name="day"><br>
-    Month: <input type="number" name="month"><br>
+    Latitude: <input type="text" name="latitude" id="lat"><br><br>
+    Longitude: <input type="text" name="longitude" id="lon"><br><br>
+    Hour (0-23): <input type="number" name="hour"><br><br>
+    Day: <input type="number" name="day"><br><br>
+    Month: <input type="number" name="month"><br><br>
     <button type="submit">Predict</button>
 </form>
 
@@ -24,20 +42,44 @@
 
 <hr>
 
-<a href="/generate_heatmap">View Density Heatmap</a><br>
+<!-- ================= LINKS ================= -->
+
+<a href="/generate_heatmap">View Density Heatmap</a><br><br>
 <a href="/patrol_routes">View Patrol Route Recommendations</a>
 
 <hr>
 
+<!-- ================= GRAPH ================= -->
+
 <h2>Crime by Hour</h2>
-<canvas id="hourChart"></canvas>
+
+<div class="chart-wrapper">
+    <canvas id="hourChart"></canvas>
+</div>
 
 <hr>
+
+<!-- ================= AREA RANKING ================= -->
 
 <h2>Area Risk Ranking</h2>
 <ul id="areaRanking"></ul>
 
+<!-- ================= JAVASCRIPT ================= -->
+
 <script>
+
+// ---------- AUTO FILL LAT LONG ----------
+document.getElementById("areaSelect").addEventListener("change", function() {
+    let value = this.value;
+
+    if (value) {
+        let coords = value.split(",");
+        document.getElementById("lat").value = coords[0];
+        document.getElementById("lon").value = coords[1];
+    }
+});
+
+// ---------- PREDICTION ----------
 document.getElementById("predictForm").onsubmit = async function(e){
     e.preventDefault();
     let formData = new FormData(this);
@@ -51,6 +93,7 @@ document.getElementById("predictForm").onsubmit = async function(e){
     document.getElementById("result").innerText = data.result;
 };
 
+// ---------- CRIME BY HOUR GRAPH ----------
 fetch("/crime_by_hour")
 .then(response => response.json())
 .then(data => {
@@ -66,10 +109,15 @@ fetch("/crime_by_hour")
                 label: "Crimes per Hour",
                 data: values
             }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 });
 
+// ---------- AREA RANKING ----------
 fetch("/area_ranking")
 .then(response => response.json())
 .then(data => {
@@ -83,6 +131,7 @@ fetch("/area_ranking")
         list.appendChild(li);
     }
 });
+
 </script>
 
 </body>
